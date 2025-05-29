@@ -86,6 +86,8 @@ export class GdmLiveAudio extends LitElement {
       justify-content: center;
       flex-direction: row;
       gap: 10px;
+      text-align: center;
+      padding: 5px;
       span {
           color: #FFF
         }
