@@ -5,7 +5,7 @@
  */
 
 import {GoogleGenAI, LiveServerMessage, Modality, Session} from '@google/genai';
-import {LitElement, css, html} from 'lit';
+import {LitElement, _$LE, css, html} from 'lit';
 import {customElement, state} from 'lit/decorators.js';
 import {createBlob, decode, decodeAudioData} from './utils';
 import './visual-3d';
@@ -15,6 +15,7 @@ export class GdmLiveAudio extends LitElement {
   @state() isRecording = false;
   @state() status = '';
   @state() error = '';
+  @state() message = 'Tekan tombol merah untuk berbicara';
 
   private client: GoogleGenAI;
   private session: Session|null=null;
@@ -197,9 +198,9 @@ export class GdmLiveAudio extends LitElement {
   }
 
   private async initSession() {
-    // const model = 'gemini-2.5-flash-preview-native-audio-dialog';
-    const model = 'gemini-2.5-flash-exp-native-audio-thinking-dialog';
-
+    // const model = 'gemini-2.5-flash-exp-native-audio-thinking-dialog';
+    const model = 'gemini-2.5-flash-preview-native-audio-dialog';
+    this.message = 'Tekan tombol merah untuk berbicara';
     try {
       this.session = await this.client.live.connect({
         model: model,
@@ -247,9 +248,15 @@ export class GdmLiveAudio extends LitElement {
           onerror: (e: ErrorEvent) => {
             this.session = null;
             this.updateError(e.message);
+            console.log('ERROR : ', e.message);
+            this.message = e.message;
           },
           onclose: (e: CloseEvent) => {
             this.session = null;
+            console.log('CLOSED : ', e.reason);
+            if (e.code == 1011 && e.type == 'close') {
+              this.message = 'Maaf layanan AI saat ini sedang tidak tersedia, silakan kembali beberapa saat lagi.';
+            }
             this.updateStatus('Close:' + e.reason);
           },
         },
@@ -364,7 +371,7 @@ export class GdmLiveAudio extends LitElement {
             <div class="gradient-overlay"></div>
         </div>
         <div class="message">
-          <span >Tekan tombol merah untuk berbicara</span>
+          <span id="spanmessage">${this.message}</span>
         </div>
         <div class="controls">
           <button
