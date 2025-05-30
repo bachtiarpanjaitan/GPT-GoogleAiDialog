@@ -42,7 +42,7 @@ export class GdmLiveAudioVisuals extends LitElement {
 
   static styles = css`
     canvas {
-      width: 400px;
+      width: 300px;
       aspect-ratio: 1 / 1;
     }
   `;
@@ -109,7 +109,7 @@ export class GdmLiveAudioVisuals extends LitElement {
   }
 
   private render() {
-    return html`<canvas></canvas>`;
+    return html`<canvas id="visualcanvas"></canvas>`;
   }
 }
 

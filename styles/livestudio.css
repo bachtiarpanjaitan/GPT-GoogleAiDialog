@@ -1,0 +1,148 @@
+@import "tailwindcss";
+#status {
+      position: absolute;
+      bottom: 5vh;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      text-align: center;
+    }
+
+.controls {
+  z-index: 10;
+  position: absolute;
+  bottom: 10vh;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 10px;
+
+  .recbutton {
+    outline: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    width: 64px;
+    height: 64px;
+    cursor: pointer;
+    font-size: 24px;
+    padding: 0;
+    margin: 0;
+    svg {
+      display: unset;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  .recbutton[disabled] {
+    display: none;
+  }
+}
+.message {
+  z-index: 10;
+  position: absolute;
+  bottom: 26vh;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 10px;
+  text-align: center;
+  padding: 5px;
+  p {
+      color: #FFF
+    }
+}
+
+.logocontainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;   
+  height: 98vh;         
+  img {
+      width: 220px;
+      height: 220px;
+      z-index: 10;
+      opacity: 5%;
+    }
+}
+.gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%);
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .controls button {
+    width: 100px;  
+    height: 100px;
+    font-size: 28px; 
+  }
+
+  .logocontainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;   
+    height: 98vh;         
+    img {
+        width: 130px;
+        height: 130px;
+      }
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .logocontainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;   
+    height: 98vh;         
+    img {
+        width: 130px;
+        height: 130px;
+      }
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .controls button {
+    width: 130px;
+    height: 130px;
+    font-size: 30px;
+    img {
+      width: 200px;
+      height: 200px;
+    }
+  }
+}
+
+@media (min-width: 1025px) {
+  .controls button {
+    width: 80px;
+    height: 80px;
+    font-size: 32px;
+  }
+  .logocontainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;   
+    height: 98vh;         
+    img {
+        width: 110px;
+        height: 110px;
+      }
+  }
+}

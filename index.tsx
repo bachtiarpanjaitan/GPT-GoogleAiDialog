@@ -7,15 +7,17 @@
 import {GoogleGenAI, LiveServerMessage, Modality, Session} from '@google/genai';
 import {LitElement, _$LE, css, html} from 'lit';
 import {customElement, state} from 'lit/decorators.js';
-import {createBlob, decode, decodeAudioData} from './utils';
-import './visual-3d';
+import {createBlob, decode, decodeAudioData} from './mode/liveaudio/utils';
+import './mode/liveaudio/visual-3d';
+import styles from './styles/livestudio.css' assert { type: 'css' };
 
 @customElement('gdm-live-audio')
 export class GdmLiveAudio extends LitElement {
   @state() isRecording = false;
   @state() status = '';
   @state() error = '';
-  @state() message = 'Tekan tombol merah untuk berbicara';
+  @state() title = '';
+  @state() message = '...';
 
   private client: GoogleGenAI;
   private session: Session|null=null;
@@ -30,153 +32,9 @@ export class GdmLiveAudio extends LitElement {
   private sourceNode: AudioBufferSourceNode;
   private scriptProcessorNode: ScriptProcessorNode;
   private sources = new Set<AudioBufferSourceNode>();
+  static styles = css`${styles}`;
 
-  static styles = css`
-    #status {
-      position: absolute;
-      bottom: 5vh;
-      left: 0;
-      right: 0;
-      z-index: 10;
-      text-align: center;
-    }
 
-    .controls {
-      z-index: 10;
-      position: absolute;
-      bottom: 10vh;
-      left: 0;
-      right: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: row;
-      gap: 10px;
-
-      button {
-        outline: none;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: white;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.1);
-        width: 64px;
-        height: 64px;
-        cursor: pointer;
-        font-size: 24px;
-        padding: 0;
-        margin: 0;
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-      }
-
-      button[disabled] {
-        display: none;
-      }
-    }
-    .message {
-      z-index: 10;
-      position: absolute;
-      bottom: 26vh;
-      left: 0;
-      right: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: row;
-      gap: 10px;
-      text-align: center;
-      padding: 5px;
-      span {
-          color: #FFF
-        }
-    }
-    
-    .logocontainer {
-      display: flex;
-      justify-content: center;
-      align-items: center;   
-      height: 98vh;         
-      img {
-          width: 220px;
-          height: 220px;
-          z-index: 10;
-          opacity: 5%;
-        }
-    }
-    .gradient-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%);
-      pointer-events: none;
-    }
-
-    @media (max-width: 480px) {
-      .controls button {
-        width: 100px;  
-        height: 100px;
-        font-size: 28px; 
-      }
-
-      .logocontainer {
-        display: flex;
-        justify-content: center;
-        align-items: center;   
-        height: 98vh;         
-        img {
-            width: 130px;
-            height: 130px;
-          }
-      }
-    }
-
-    @media (min-width: 481px) and (max-width: 768px) {
-      .logocontainer {
-        display: flex;
-        justify-content: center;
-        align-items: center;   
-        height: 98vh;         
-        img {
-            width: 130px;
-            height: 130px;
-          }
-      }
-    }
-
-    @media (min-width: 769px) and (max-width: 1024px) {
-      .controls button {
-        width: 130px;
-        height: 130px;
-        font-size: 30px;
-        img {
-          width: 200px;
-          height: 200px;
-        }
-      }
-    }
-    
-    @media (min-width: 1025px) {
-      .controls button {
-        width: 80px;
-        height: 80px;
-        font-size: 32px;
-      }
-      .logocontainer {
-        display: flex;
-        justify-content: center;
-        align-items: center;   
-        height: 98vh;         
-        img {
-            width: 110px;
-            height: 110px;
-          }
-      }
-    }
-  `;
 
   constructor() {
     super();
@@ -202,7 +60,8 @@ export class GdmLiveAudio extends LitElement {
   private async initSession() {
     // const model = 'gemini-2.5-flash-exp-native-audio-thinking-dialog';
     const model = 'gemini-2.5-flash-preview-native-audio-dialog';
-    this.message = 'Tekan tombol merah untuk berbicara';
+    this.message = ': Tekan microphone untuk berbicara...';
+    this.title = 'ONLINE';
     try {
       this.session = await this.client.live.connect({
         model: model,
@@ -257,7 +116,8 @@ export class GdmLiveAudio extends LitElement {
             this.session = null;
             console.log('CLOSED : ', e.reason);
             if (e.code == 1011 && e.type == 'close') {
-              this.message = 'Maaf layanan AI saat ini sedang tidak tersedia, silakan kembali beberapa saat lagi.';
+              this.title = 'OFFLINE';
+              this.message = ': Maaf layanan AI saat ini sedang tidak tersedia, silakan kembali beberapa saat lagi.';
             }
             this.updateStatus('Close:' + e.reason);
           },
@@ -370,51 +230,41 @@ export class GdmLiveAudio extends LitElement {
       <div>
         <div class="logocontainer">
             <img src="bataxdev.png" alt="Bataxdev"/>
-            <div class="gradient-overlay"></div>
         </div>
         <div class="message">
-          <span id="spanmessage">${this.message}</span>
+          <p class="font-mono">${this.title}</p>
+          <p class="font-mono">${this.message}</p>
         </div>
         <div class="controls">
           <button
             id="resetButton"
+            class="recbutton"
             @click=${this.reset}
             ?disabled=${this.isRecording}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="40px"
-              viewBox="0 -960 960 960"
-              width="40px"
-              fill="#ffffff">
-              <path
-                d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
             </svg>
           </button>
           <button
             id="startButton"
+            class="recbutton"
             @click=${this.startRecording}
             ?disabled=${this.isRecording}>
-            <svg
-              viewBox="0 0 100 100"
-              width="32px"
-              height="32px"
-              fill="#c80000"
-              xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="50" r="50" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
             </svg>
+
           </button>
           <button
             id="stopButton"
+            class="recbutton"
             @click=${this.stopRecording}
             ?disabled=${!this.isRecording}>
-            <svg
-              viewBox="0 0 100 100"
-              width="32px"
-              height="32px"
-              fill="#000000"
-              xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="0" width="100" height="100" rx="15" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 9.563C9 9.252 9.252 9 9.563 9h4.874c.311 0 .563.252.563.563v4.874c0 .311-.252.563-.563.563H9.564A.562.562 0 0 1 9 14.437V9.564Z" />
             </svg>
+
           </button>
         </div>
 

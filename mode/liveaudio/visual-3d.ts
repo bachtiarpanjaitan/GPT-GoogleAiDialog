@@ -62,7 +62,7 @@ export class GdmLiveAudioVisuals3D extends LitElement {
   private canvas!: HTMLCanvasElement;
 
   static styles = css`
-    canvas {
+    #hmpcanvas {
       width: 100% !important;
       height: 100% !important;
       position: absolute;
@@ -251,7 +251,7 @@ export class GdmLiveAudioVisuals3D extends LitElement {
   }
 
   protected render() {
-    return html`<canvas></canvas>`;
+    return html`<canvas id="hmpcanvas" class="canvasframe"></canvas>`;
   }
 }
 
