@@ -48,7 +48,7 @@
 .message {
   z-index: 10;
   position: absolute;
-  bottom: 26vh;
+  bottom: 20vh;
   left: 0;
   right: 0;
   display: flex;
@@ -58,9 +58,6 @@
   gap: 10px;
   text-align: center;
   padding: 5px;
-  p {
-      color: #FFF
-    }
 }
 
 .logocontainer {

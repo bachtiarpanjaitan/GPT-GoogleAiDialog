@@ -60,8 +60,7 @@ export class GdmLiveAudio extends LitElement {
   private async initSession() {
     // const model = 'gemini-2.5-flash-exp-native-audio-thinking-dialog';
     const model = 'gemini-2.5-flash-preview-native-audio-dialog';
-    this.message = ': Tekan microphone untuk berbicara...';
-    this.title = 'ONLINE';
+    this.message = 'Tekan microphone untuk berbicara...';
     try {
       this.session = await this.client.live.connect({
         model: model,
@@ -116,8 +115,7 @@ export class GdmLiveAudio extends LitElement {
             this.session = null;
             console.log('CLOSED : ', e.reason);
             if (e.code == 1011 && e.type == 'close') {
-              this.title = 'OFFLINE';
-              this.message = ': Maaf layanan AI saat ini sedang tidak tersedia, silakan kembali beberapa saat lagi.';
+              this.message = 'Maaf layanan AI saat ini sedang tidak tersedia, silakan kembali beberapa saat lagi.';
             }
             this.updateStatus('Close:' + e.reason);
           },
@@ -232,8 +230,7 @@ export class GdmLiveAudio extends LitElement {
             <img src="bataxdev.png" alt="Bataxdev"/>
         </div>
         <div class="message">
-          <p class="font-mono">${this.title}</p>
-          <p class="font-mono">${this.message}</p>
+          <span class="font-mono text-white">${this.message}</span>
         </div>
         <div class="controls">
           <button
